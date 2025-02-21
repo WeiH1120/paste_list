@@ -41,7 +41,7 @@ class paste_list:
         self.clipboard_history = self.clipboard_history[-self.max_items:]
  
     def setup_keyboard_listener(self):
-        keyboard.add_hotkey('ctrl+shift+v', self.show_clipboard_history)
+        keyboard.add_hotkey('ctrl+windows+v', self.show_clipboard_history)
     def show_clipboard_history(self):
         if not self.clipboard_history:
             return
@@ -87,7 +87,8 @@ class paste_list:
         self.root.clipboard_clear()
         self.root.clipboard_append(selected_text)
         self.history_window.destroy()
-        keyboard.write(selected_text)  # 觸發貼上文字到當前游標處
+        # keyboard.write(selected_text)  # 觸發貼上文字到當前游標處
+        keyboard.send('ctrl+v')  # 觸發貼上文字到當前游標處
  
     def close_clipboard(self, event):
         if self.history_window:
