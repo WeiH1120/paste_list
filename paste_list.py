@@ -1,6 +1,22 @@
 import tkinter as tk
-import keyboard
- 
+import platform
+
+system_name = platform.system()
+if system_name == "Darwin":   # macOS 的識別名稱
+    from pynput import keyboard as keyboard_mac
+    from pynput.keyboard import Controller
+    from AppKit import NSWorkspace, NSApplicationActivateIgnoringOtherApps
+    clipboard_key = {keyboard_mac.Key.cmd, keyboard_mac.Key.ctrl, keyboard_mac.KeyCode(char='v')}
+    paste_key = {keyboard_mac.Key.cmd, keyboard_mac.KeyCode(char='v')}
+elif system_name == "Windows":
+    import keyboard
+    clipboard_key =  "ctrl+windows+v"
+    paste_key = "ctrl+v"
+else:
+    import keyboard
+    clipboard_key =  "ctrl+windows+v"
+    paste_key = "ctrl+v"
+
  
 class paste_list:
     def __init__(self, root):
@@ -41,11 +57,31 @@ class paste_list:
         self.clipboard_history = self.clipboard_history[-self.max_items:]
  
     def setup_keyboard_listener(self):
-        keyboard.add_hotkey('ctrl+windows+v', self.show_clipboard_history)
+        if system_name == "Darwin":
+            def on_press(key):
+                if all(k in self.pressed_keys for k in clipboard_key):
+                    self.show_clipboard_history()
+            def on_release(key):
+                try:
+                    self.pressed_keys.remove(key)
+                except KeyError:
+                    pass
+            self.pressed_keys = set()
+            listener = keyboard_mac.Listener(on_press=lambda key: self.pressed_keys.add(key) or on_press(key),
+                                        on_release=on_release)
+            listener.start()
+        elif system_name == "Windows":
+            keyboard.add_hotkey(clipboard_key, self.show_clipboard_history)
+        else:
+            keyboard.add_hotkey(clipboard_key, self.show_clipboard_history)
+        
     def show_clipboard_history(self):
+        if system_name == "Darwin":
+            self.original_app = NSWorkspace.sharedWorkspace().frontmostApplication()
+        else:
+            self.original_app = None
         if not self.clipboard_history:
             return
- 
         if self.history_window and self.history_window.winfo_exists():
             self.history_window.lift()
             self.history_window.focus_force()
@@ -87,8 +123,18 @@ class paste_list:
         self.root.clipboard_clear()
         self.root.clipboard_append(selected_text)
         self.history_window.destroy()
-        # keyboard.write(selected_text)  # 觸發貼上文字到當前游標處
-        keyboard.send('ctrl+v')  # 觸發貼上文字到當前游標處
+        if system_name == "Darwin":
+            self.original_app.activateWithOptions_(NSApplicationActivateIgnoringOtherApps)
+            keyboard_controller = Controller()
+            keyboard_controller.press(keyboard_mac.Key.cmd)
+            keyboard_controller.press('v')
+            keyboard_controller.release('v')
+            keyboard_controller.release(keyboard_mac.Key.cmd)
+        elif system_name == "Windows":
+            # keyboard.write(selected_text)  # 觸發貼上文字到當前游標處
+            keyboard.send(paste_key)  # 觸發貼上文字到當前游標處
+        else:
+            keyboard.send(paste_key)  # 觸發貼上文字到當前游標處
  
     def close_clipboard(self, event):
         if self.history_window:
