@@ -1,6 +1,18 @@
 # paste_list
 
-## How to use?
+
+# 項目說明
+純文字簡易剪貼簿，允許複數剪貼項目（純文字），並可用左右鍵選取。
+
+# 版本
+
+- Version:1.0
+- 支援系統
+    - macOS Sequoia 15.3.1（24D70）
+    - Windows 10
+
+
+# How to use?
 
 1. open the app.
 2. write something.
@@ -13,6 +25,7 @@
 7. paste or exit
     1. return to paste
     2. esc to exit
+
 
 
 
