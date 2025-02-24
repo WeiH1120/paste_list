@@ -10,11 +10,11 @@ if system_name == "Darwin":   # macOS 的識別名稱
     paste_key = {keyboard_mac.Key.cmd, keyboard_mac.KeyCode(char='v')}
 elif system_name == "Windows":
     import keyboard
-    clipboard_key =  "ctrl+windows+v"
+    clipboard_key =  "ctrl+alt+v"
     paste_key = "ctrl+v"
 else:
     import keyboard
-    clipboard_key =  "ctrl+windows+v"
+    clipboard_key =  "ctrl+alt+v"
     paste_key = "ctrl+v"
 
  
